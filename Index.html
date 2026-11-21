@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>محاكاة الـ labyrinth seal</title>
+<style>
+:root{
+  --bg:#ffffff;--text:#1f1e1d;--text2:#5f5e5a;--border:rgba(0,0,0,.18);--neutral:#f1efe8;
+  --accent-bg:#E6F1FB;--accent-text:#0C447C;--accent-border:#85B7EB;--ok:#27500A;--bad:#791F1F;
+  --gray-fill:#F1EFE8;--gray-stroke:#5F5E5A;--gray-text:#444441;
+  --pur-fill:#EEEDFE;--pur-stroke:#534AB7;--pur-text:#3C3489;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#1f1e1d;--text:#f1efe8;--text2:#b4b2a9;--border:rgba(255,255,255,.22);--neutral:#2c2c2a;
+    --accent-bg:#0C447C;--accent-text:#B5D4F4;--accent-border:#378ADD;--ok:#97C459;--bad:#F09595;
+    --gray-fill:#444441;--gray-stroke:#B4B2A9;--gray-text:#D3D1C7;
+    --pur-fill:#3C3489;--pur-stroke:#AFA9EC;--pur-text:#CECBF6;
+  }
+}
+*{box-sizing:border-box}
+body{margin:0;padding:24px 16px 48px;background:var(--bg);color:var(--text);
+  font-family:"Segoe UI",Tahoma,Arial,sans-serif;line-height:1.7;font-size:16px}
+main{max-width:720px;margin:0 auto}
+h1{font-size:22px;font-weight:500;margin:0 0 4px}
+h2{font-size:18px;font-weight:500;margin:40px 0 12px}
+p.sub{margin:0 0 8px;color:var(--text2);font-size:14px}
+svg{display:block;width:100%;height:auto}
+svg text{fill:var(--text);font-size:14px;font-family:inherit}
+svg .ts{font-size:12px;fill:var(--text2)}
+svg .th{font-weight:500}
+svg .tp{fill:var(--pur-text)}
+svg .tg{fill:var(--gray-text)}
+.c-gray{fill:var(--gray-fill);stroke:var(--gray-stroke)}
+.c-purple{fill:var(--pur-fill);stroke:var(--pur-stroke)}
+button{font:inherit;font-size:14px;padding:6px 14px;background:transparent;color:var(--text);
+  border:.5px solid var(--border);border-radius:8px;cursor:pointer}
+button:hover{background:var(--neutral)}
+button:focus-visible,input:focus-visible{outline:2px solid var(--accent-border);outline-offset:2px}
+.pill{padding:4px 12px;font-size:13px}
+.pill.on{background:var(--accent-bg);color:var(--accent-text);border-color:var(--accent-border)}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 8px}
+.cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:0 0 12px}
+.mc{background:var(--neutral);border-radius:8px;padding:10px 12px;text-align:center}
+.mc p{margin:0}
+.mc .l{font-size:13px;color:var(--text2)}
+.mc .v{font-size:20px;font-weight:500}
+.ctl{display:flex;align-items:center;gap:10px;font-size:14px;color:var(--text2)}
+.ctl output{min-width:36px;color:var(--text);font-weight:500}
+.ctl input{flex:1}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px 24px;margin:12px 0}
+input[type=number]{width:90px;font:inherit;padding:4px 8px;background:var(--bg);color:var(--text);
+  border:.5px solid var(--border);border-radius:8px}
+</style>
+</head>
+<body>
+<main>
+<h1>محاكاة الـ labyrinth seal</h1>
+<p class="sub">الأولى لقياس الخلوص بسلك اللحام، والتانية لحركة الغاز تحت الأسنان.</p>
+
+<h2>1. قياس الخلوص بالبصمة (solder wire)</h2>
+<div class="row" id="wpills"></div>
+<svg viewBox="0 0 680 400" role="img" aria-label="مقطع جانبي لسن الـ seal وسلك لحام على العمود" dir="ltr">
+  <rect class="c-gray" x="40" y="250" width="600" height="65" rx="4" stroke-width="0.5"/>
+  <text class="ts tg" x="340" y="290" text-anchor="middle">العمود (shaft)</text>
+  <polygon id="wwire" fill="#EF9F27" stroke="#854F0B" stroke-width="0.5"/>
+  <g id="wwl"><text class="ts" x="72" y="240" text-anchor="middle">سلك اللحام</text></g>
+  <g id="wseal" style="transition:opacity .4s">
+    <rect class="c-purple" x="130" y="154" width="400" height="46" rx="4" stroke-width="0.5"/>
+    <text class="th tp" x="330" y="177" text-anchor="middle" dominant-baseline="central">النص العلوي للـ seal</text>
+    <g id="wteeth"></g>
+  </g>
+  <g id="wvals" style="transition:opacity .4s;opacity:0">
+    <text class="ts" x="72" y="376" text-anchor="middle">الخلوص (مم)</text>
+  </g>
+</svg>
+<div style="margin:8px 0 12px;min-height:72px">
+  <p id="wct" style="margin:0 0 4px;font-weight:500"></p>
+  <p id="wcb" style="margin:0;font-size:14px;color:var(--text2)"></p>
+</div>
+<div class="row"><button id="wprev">السابق</button><button id="wnext">التالي</button></div>
+<div class="cards">
+  <div class="mc"><p class="l">أقل قراءة</p><p class="v" id="wm1">—</p></div>
+  <div class="mc"><p class="l">المتوسط</p><p class="v" id="wm2">—</p></div>
+  <div class="mc"><p class="l">أكبر قراءة</p><p class="v" id="wm3">—</p></div>
+</div>
+<div class="ctl" style="flex-wrap:wrap">
+  <label for="woem">الحد الأقصى المسموح (مثال، عدّله من الـ OEM)</label>
+  <input id="woem" type="number" step="0.01" min="0" value="0.50">
+  <span id="wst" style="font-weight:500"></span>
+</div>
+
+<h2>2. حركة الغاز تحت الأسنان</h2>
+<svg viewBox="0 0 680 330" role="img" aria-label="جزيئات غاز بتعدي تحت أسنان الـ labyrinth seal" dir="ltr">
+  <g id="gregs"></g>
+  <rect class="c-gray" x="40" y="250" width="600" height="50" rx="4" stroke-width="0.5"/>
+  <text class="ts tg" x="340" y="278" text-anchor="middle" dominant-baseline="central">العمود (shaft)</text>
+  <g id="gparts"></g>
+  <rect class="c-purple" x="130" y="60" width="420" height="40" rx="4" stroke-width="0.5"/>
+  <text class="th tp" x="340" y="80" text-anchor="middle" dominant-baseline="central">الـ labyrinth seal</text>
+  <g id="gteeth"></g>
+  <text class="ts" x="85" y="50" text-anchor="middle">ضغط عالي (NOx)</text>
+  <text class="ts" x="595" y="50" text-anchor="middle">ضغط واطي (بره)</text>
+  <text class="ts" x="340" y="320" text-anchor="middle">اللون الغامق = ضغط أعلى، والخلوص = الفتحة تحت كل سن</text>
+</svg>
+<div class="grid2">
+  <label class="ctl">الخلوص (مم)
+    <input id="gcl" type="range" min="0.2" max="1" step="0.05" value="0.4"><output id="gclo">0.40</output></label>
+  <label class="ctl">عدد الأسنان
+    <input id="gnt" type="range" min="3" max="8" step="1" value="5"><output id="gnto">5</output></label>
+</div>
+<div class="cards">
+  <div class="mc"><p class="l">التسريب النسبي</p><p class="v" id="glk">100%</p></div>
+  <div class="mc"><p class="l">الضغط اللي بينزل مع كل سن</p><p class="v" id="gdp">20%</p></div>
+  <div class="mc"><p class="l">الحالة</p><p class="v" id="gsv" style="font-size:16px">طبيعي</p></div>
+</div>
+<button id="gpp">إيقاف</button>
+</main>
+
+<script>
+(function(){
+var NS='http://www.w3.org/2000/svg';
+function $(id){return document.getElementById(id)}
+function mk(n,a){var e=document.createElementNS(NS,n);for(var k in a)e.setAttribute(k,a[k]);return e}
+
+/* ===== 1. wire impression ===== */
+var W=20,C=[0.40,0.45,0.40,0.50,0.42],X=[180,255,330,405,480];
+var tip=C.map(function(v){return 250-v*W});
+var wteeth=$('wteeth'),wvals=$('wvals');
+X.forEach(function(cx,i){
+  wteeth.appendChild(mk('polygon',{points:(cx-11)+',200 '+(cx+11)+',200 '+(cx+2)+','+tip[i]+' '+(cx-2)+','+tip[i],
+    fill:'#AFA9EC',stroke:'#534AB7','stroke-width':'0.5'}));
+  var t=mk('text',{class:'th',x:cx,y:376,'text-anchor':'middle'});
+  wvals.appendChild(t);
+});
+var vt=wvals.querySelectorAll('.th');
+var S=[
+['جهّز','نضّف العمود والأسنان، والنص العلوي مفتوح. الخلوص هو الفراغ الصغير بين طرف السن والعمود.'],
+['حط السلك','حط سلك لحام solid من غير flux، قطره أكبر من الخلوص المتوقع، بالطول على العمود تحت الأسنان.'],
+['اقفل النص','نزّل النص العلوي وشدّ البراغي بالعزم المحدد. الأسنان بتضغط السلك. ماتدوّرش الـ rotor.'],
+['افتح بحرص','ارفع النص العلوي. السلك فضل متبصم عند كل سن، وسمكه هناك بقى يساوي الخلوص.'],
+['قيس','طلّع السلك وقيس سمكه بالميكرومتر عند كل بصمة، وقارن بقيمة الـ OEM. العبرة بأقل قراءة وبالمتوسط.']
+];
+var step=1,crush=[W,W,W,W,W];
+var s={p:0,a:0,off:-45,so:1},t={p:0,a:0,off:-45,so:1},raf=0;
+var pills=$('wpills');
+S.forEach(function(x,i){
+  var b=document.createElement('button');b.className='pill';b.textContent=(i+1)+'. '+x[0];
+  b.onclick=function(){go(i+1)};pills.appendChild(b);
+});
+function go(n){
+  n=Math.max(1,Math.min(5,n));var prev=step;step=n;
+  if(n<=2)crush=[W,W,W,W,W];
+  if(n>=4&&crush.every(function(v){return v===W}))crush=C.map(function(v){return v*W});
+  if(n>=3&&prev<=2&&n!==3){s.p=0}
+  if(n>=3){s.a=1;if(prev<=2&&n<5)s.off=0}
+  t.p=n===3?1:0;t.a=n>=2?1:0;t.off=n===1?-45:(n===5?100:0);t.so=n===5?0.15:1;
+  wvals.style.opacity=n===5?1:0;
+  $('wct').textContent=n+'. '+S[n-1][0];
+  $('wcb').textContent=S[n-1][1];
+  var ps=pills.children;
+  for(var i=0;i<ps.length;i++)ps[i].className='pill'+(i+1===n?' on':'');
+  updW();if(!raf)raf=requestAnimationFrame(tick);
+}
+function tick(){
+  var mv=false;
+  for(var k in s){var d=t[k]-s[k];if(Math.abs(d)<0.002){s[k]=t[k]}else{s[k]+=d*0.14;mv=true}}
+  renderW();raf=mv?requestAnimationFrame(tick):0;
+}
+function renderW(){
+  var lift=(1-s.p)*70;
+  $('wseal').setAttribute('transform','translate(0,'+(-lift)+')');
+  $('wseal').style.opacity=s.so;
+  if(step>=3&&step<=4){
+    for(var i=0;i<5;i++){var av=250-(tip[i]-lift);crush[i]=Math.min(crush[i],Math.max(av,C[i]*W))}
+  }
+  var b=250+s.off,tp=b-W,pts=['110,'+tp];
+  X.forEach(function(cx,i){var c=b-crush[i];pts.push((cx-13)+','+tp,(cx-7)+','+c,(cx+7)+','+c,(cx+13)+','+tp)});
+  pts.push('550,'+tp,'550,'+b,'110,'+b);
+  var w=$('wwire');w.setAttribute('points',pts.join(' '));w.style.opacity=s.a;
+  var wl=$('wwl');wl.setAttribute('transform','translate(0,'+s.off+')');wl.style.opacity=s.a;
+  for(var j=0;j<5;j++)vt[j].textContent=(crush[j]/W).toFixed(2);
+}
+function updW(){
+  var m=[$('wm1'),$('wm2'),$('wm3')],st=$('wst');
+  if(step!==5){m.forEach(function(e){e.textContent='—'});st.textContent='';return}
+  var v=crush.map(function(x){return x/W}),mn=Math.min.apply(null,v),mx=Math.max.apply(null,v);
+  var av=v.reduce(function(a,c){return a+c},0)/v.length;
+  m[0].textContent=mn.toFixed(2)+' مم';m[1].textContent=av.toFixed(2)+' مم';m[2].textContent=mx.toFixed(2)+' مم';
+  var o=parseFloat($('woem').value);
+  if(isNaN(o)){st.style.color='var(--text2)';st.textContent='اكتب الحد الأقصى بالمللي';return}
+  if(mx<=o){st.style.color='var(--ok)';st.textContent='داخل الحدود'}
+  else{st.style.color='var(--bad)';st.textContent='أكبر من المسموح'}
+}
+$('woem').oninput=updW;
+$('wnext').onclick=function(){go(step+1)};
+$('wprev').onclick=function(){go(step-1)};
+go(1);
+
+/* ===== 2. gas flow ===== */
+var SC=30,N=5,c=0.4,tx=[],parts=[],acc=0,run=true;
+var regs=$('gregs'),teeth=$('gteeth'),pg=$('gparts');
+function tipY(){return 250-c*SC}
+function build(){
+  regs.innerHTML='';teeth.innerHTML='';tx=[];
+  for(var i=1;i<=N;i++)tx.push(130+i*420/(N+1));
+  var bx=[40].concat(tx,[640]);
+  for(var k=0;k<=N;k++){
+    var P=1-k/N;
+    regs.appendChild(mk('rect',{x:bx[k],y:100,width:bx[k+1]-bx[k],height:150,fill:'#D85A30',opacity:(0.06+0.4*P).toFixed(3)}));
+  }
+  var ty=tipY();
+  tx.forEach(function(x){
+    teeth.appendChild(mk('polygon',{points:(x-7)+',100 '+(x+7)+',100 '+(x+1.5)+','+ty+' '+(x-1.5)+','+ty,
+      fill:'#AFA9EC',stroke:'#534AB7','stroke-width':'0.5'}));
+  });
+}
+function leak(){return (c/0.4)/Math.sqrt(N/5)}
+function info(){
+  var L=leak();
+  $('glk').textContent=Math.round(L*100)+'%';
+  $('gdp').textContent=Math.round(100/N)+'%';
+  var sv=$('gsv');
+  if(L>1.5){sv.textContent='تسريب عالي';sv.style.color='var(--bad)'}
+  else if(L<0.8){sv.textContent='تسريب قليل';sv.style.color='var(--ok)'}
+  else{sv.textContent='طبيعي';sv.style.color='var(--text)'}
+  $('gclo').textContent=c.toFixed(2);
+  $('gnto').textContent=N;
+}
+function spawn(){
+  var el=mk('circle',{r:2.6,fill:'#D85A30'});pg.appendChild(el);
+  parts.push({x:45+Math.random()*30,y:106+Math.random()*138,el:el});
+}
+function frame(){
+  if(run){
+    var ty=tipY(),gm=(ty+250)/2;
+    acc+=0.075*leak();
+    while(acc>=1&&parts.length<170){spawn();acc-=1}
+    if(acc>=1)acc=0;
+    for(var i=parts.length-1;i>=0;i--){
+      var p=parts[i],near=false,ahead=false;
+      for(var j=0;j<tx.length;j++){
+        var d=tx[j]-p.x;
+        if(Math.abs(d)<9)near=true;
+        else if(d>0&&d<30)ahead=true;
+      }
+      if(near){p.x+=3.2;p.y+=(gm-p.y)*0.35;p.y=Math.max(ty+2,Math.min(248,p.y))}
+      else{
+        p.x+=0.9;
+        if(ahead&&p.y<ty+2)p.y+=(gm-p.y)*0.12;
+        p.y+=(Math.random()-0.5)*3;
+        p.y=Math.max(104,Math.min(247,p.y));
+      }
+      if(p.x>640){pg.removeChild(p.el);parts.splice(i,1);continue}
+      p.el.setAttribute('cx',p.x.toFixed(1));p.el.setAttribute('cy',p.y.toFixed(1));
+    }
+  }
+  requestAnimationFrame(frame);
+}
+function reset(){parts.forEach(function(p){pg.removeChild(p.el)});parts=[];acc=0}
+$('gcl').oninput=function(){c=parseFloat(this.value);build();info()};
+$('gnt').oninput=function(){N=parseInt(this.value,10);reset();build();info()};
+$('gpp').onclick=function(){run=!run;this.textContent=run?'إيقاف':'تشغيل'};
+if(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches){run=false;$('gpp').textContent='تشغيل'}
+build();info();frame();
+})();
+</script>
+</body>
+</html>
